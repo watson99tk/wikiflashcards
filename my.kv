@@ -1,0 +1,189 @@
+<CreateAccountWindow>:
+    name: "create"
+
+    canvas:
+        Color:
+            rgba: 0.4, 0.55, 0.65, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    namee: namee
+    email: email
+    password: passw
+
+    FloatLayout:
+        cols:1
+
+        FloatLayout:
+            size: root.width, root.height/2
+
+            Label:
+                text: "Create an Account"
+                size_hint: 0.8, 0.2
+                pos_hint: {"x":0.1, "top":1}
+                font_size: (min(root.width, root.height)/10)**(0.8)
+
+            Label:
+                size_hint: 0.5,0.1
+                pos_hint: {"x":0, "top":0.8}
+                text: "Name: "
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8}
+                size_hint: 0.4, 0.1
+                id: namee
+                multiline: False
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+            Label:
+                size_hint: 0.5,0.1
+                pos_hint: {"x":0, "top":0.8-0.13}
+                text: "Email: "
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8-0.13}
+                size_hint: 0.4, 0.1
+                id: email
+                multiline: False
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+            Label:
+                size_hint: 0.5,0.1
+                pos_hint: {"x":0, "top":0.8-0.13*2}
+                text: "Password: "
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8-0.13*2}
+                size_hint: 0.4, 0.1
+                id: passw
+                multiline: False
+                password: True
+                font_size: (min(root.width, root.height)/14)**(0.8)
+
+        Button:
+            pos_hint:{"x":0.3,"y":0.25}
+            size_hint: 0.4, 0.1
+            font_size: (min(root.width, root.height)/18)**(0.8)
+            text: "Already have an Account? Log In"
+            on_release:
+                root.manager.transition.direction = "left"
+                root.login()
+
+        Button:
+            pos_hint:{"x":0.2,"y":0.05}
+            size_hint: 0.6, 0.15
+            text: "Submit"
+            font_size: (min(root.width, root.height)/14)**(0.8)
+            on_release:
+                root.manager.transition.direction = "left"
+                root.submit()
+
+<LoginWindow>:
+    name: "login"
+
+    canvas:
+        Color:
+            rgba: 0.4, 0.55, 0.65, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    email: email
+    password: password
+
+    FloatLayout:
+
+        Label:
+            text: 'Login'
+            font_size: (min(root.width, root.height)/10)**(0.8)
+            pos_hint: {"x":0.3, "top":0.95}
+            size_hint: 0.4, 0.15
+
+        Label:
+            text:"Email: "
+            font_size: (min(root.width, root.height)/14)**(0.8)
+            pos_hint: {"x":0.1, "top":0.75}
+            size_hint: 0.35, 0.1
+
+        TextInput:
+            id: email
+            font_size: (min(root.width, root.height)/14)**(0.8)
+            multiline: False
+            pos_hint: {"x": 0.45 , "top":0.75}
+            size_hint: 0.4, 0.1
+
+        Label:
+            text:"Password: "
+            font_size: (min(root.width, root.height)/14)**(0.8)
+            pos_hint: {"x":0.1, "top":0.6}
+            size_hint: 0.35, 0.1
+
+        TextInput:
+            id: password
+            font_size: (min(root.width, root.height)/10)**(0.8)
+            multiline: False
+            password: True
+            pos_hint: {"x": 0.45, "top":0.6}
+            size_hint: 0.4, 0.1
+
+        Button:
+            pos_hint:{"x":0.2,"y":0.05}
+            size_hint: 0.6, 0.2
+            font_size: (min(root.width, root.height)/10)**(0.8)
+            text: "Login"
+            on_release:
+                root.manager.transition.direction = "up"
+                root.loginBtn()
+
+        Button:
+            pos_hint:{"x":0.3,"y":0.3}
+            size_hint: 0.4, 0.1
+            font_size: (min(root.width, root.height)/18)**(0.8)
+            text: "Don't have an Account? Create One"
+            on_release:
+                root.manager.transition.direction = "right"
+                root.createBtn()
+
+
+<HomeWindow>:
+    name: 'home'
+
+    canvas:
+        Color:
+            rgba: 0.4, 0.55, 0.65, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            pos_hint:{"x": 0.1, "top":0.95}
+            size_hint:0.8, 0.2
+            text: "Available sets"
+
+        ScrollView:
+
+            pos_hint:{"x": 0.1, "top":0.8}
+            size_hint: 0.8, 0.7
+
+            do_scroll_x: False
+            do_scroll_y: True
+
+            GridLayout:
+                id: grid
+                pos: (0,0)
+
+
+                cols: 1
+
+                canvas:
+                    Color:
+                        rgba: 1, 0.1, 0.1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size

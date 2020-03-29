@@ -1,0 +1,4 @@
+,student,3
+SysOpy, na wczoraj
+MOwNiT, na jutro
+python, chill

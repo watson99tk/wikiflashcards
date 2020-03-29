@@ -1,0 +1,3 @@
+Simple example set, Przemek, 2
+apple,jabłko;
+shop,sklep;
