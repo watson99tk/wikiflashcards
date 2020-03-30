@@ -1,4 +1,6 @@
 from kivy.app import App
+from kivy.graphics.context_instructions import Color
+from kivy.graphics.vertex_instructions import Rectangle
 from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -71,6 +73,7 @@ class HomeWindow(Screen):
     def __init__(self, **kwargs):
         super(HomeWindow, self).__init__(**kwargs)
         self.grid.bind(minimum_height=self.grid.setter('height'))
+        self.sets = []
 
     current = ""
 
@@ -78,11 +81,16 @@ class HomeWindow(Screen):
         sm.current = "login"
 
     def on_enter(self, *args):
-        for name, desc, auth, size in [x for x in db_f.sets for _ in range(13)]:
+        for name, desc, auth, size in [x for x in db_f.sets for _ in range(1)]:
             button = Button(text=name + ': ' + ' by ' + auth + ' (' + size + ' flashcards)')
             button.size_hint = (0.8, 0.35)
             button.bind(on_press=self.pressed)
+            self.sets.append(button)
             self.ids.grid.add_widget(button)
+
+    def on_leave(self, *args):
+        for but in self.sets:
+            self.ids.grid.remove_widget(but)
 
     def pressed(self, instance):
         filename = instance.text.split(':')[0]
@@ -91,12 +99,21 @@ class HomeWindow(Screen):
         sm.current_screen.ids.set_name.text = filename + '.txt'
 
 
+class MyLabel(Label):
+    def on_size(self, *args):
+        self.canvas.before.clear()
+        with self.canvas.before:
+            Color(0, 1, 0, 0.25)
+            Rectangle(pos=(self.pos[0] + self.size[0] * 0.1, self.pos[1]+ self.size[1] * 0.1), size=(self.size[0] * 0.8, self.size[1] * 0.8))
+
+
 class LearningWindow(Screen):
 
     def __init__(self, **kwargs):
         super(LearningWindow, self).__init__(**kwargs)
         self.grid.bind(minimum_height=self.grid.setter('height'))
         self.filename = ""
+        self.card_labels = []
 
     def set_file(self, filename):
         self.filename = filename
@@ -106,16 +123,24 @@ class LearningWindow(Screen):
 
     def on_enter(self, *args):
         filename = self.ids.set_name.text
-        flashcards = db_f.retrieve_set(filename)
-        print(flashcards)
-        for term, definition in flashcards:
-            label_term = Label(text=term)
-            label_term.canvas
-            # label_term.size_hint(0.5, 0.25)
-            label_def = Label(text=definition)
-            # label_def.size_hint(0.5, 0.25)
+        self.flashcards = db_f.retrieve_set(filename)
+        for term, definition in self.flashcards:
+            label_term = MyLabel(text=term, halign='center', valign='middle')
+            # with label_term.canvas:
+            #     Color(0, 1, 0, 0.25)
+            #     Rectangle(pos=label_term.pos, size=label_term.size)
+            label_def = MyLabel(text=definition, halign='center', valign='middle')
+            # with label_term.canvas:
+            #     Color(0, 1, 0, 0.25)
+            #     Rectangle(pos=label_term.pos, size=label_term.size)
+            self.card_labels.append(label_term)
+            self.card_labels.append(label_def)
             self.ids.grid.add_widget(label_term)
             self.ids.grid.add_widget(label_def)
+
+    def on_leave(self, *args):
+        for label in self.card_labels:
+            self.ids.grid.remove_widget(label)
 
     def pressed(self, instance):
         filename = instance.text.split(':')[0]

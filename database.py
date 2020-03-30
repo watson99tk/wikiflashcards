@@ -75,5 +75,5 @@ class FlashCardDatabase:
         with open('sets/' + filename, 'r') as file:
             next(file)
             for line in file:
-                cards_set.append(line.split(','))
+                cards_set.append(line.strip().split(','))
         return cards_set
