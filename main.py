@@ -66,21 +66,65 @@ class LoginWindow(Screen):
 
 
 class HomeWindow(Screen):
+    # layout_content = ObjectProperty(None) is it necessary??
+
+    def __init__(self, **kwargs):
+        super(HomeWindow, self).__init__(**kwargs)
+        self.grid.bind(minimum_height=self.grid.setter('height'))
+
     current = ""
 
-    def logOut(self):
+    def log_out(self):
         sm.current = "login"
 
     def on_enter(self, *args):
-        print(db_f.sets)
-        for name, desc, auth, size in [x for x in db_f.sets for _ in range(3)]:
+        for name, desc, auth, size in [x for x in db_f.sets for _ in range(13)]:
             button = Button(text=name + ': ' + ' by ' + auth + ' (' + size + ' flashcards)')
             button.size_hint = (0.8, 0.35)
-            button.on_press()
+            button.bind(on_press=self.pressed)
             self.ids.grid.add_widget(button)
 
+    def pressed(self, instance):
+        filename = instance.text.split(':')[0]
+        sm.transition.direction = 'left'
+        sm.current = 'learning'
+        sm.current_screen.ids.set_name.text = filename + '.txt'
 
-screens = [LoginWindow(name="login"), CreateAccountWindow(name="create"), HomeWindow(name="home")]
+
+class LearningWindow(Screen):
+
+    def __init__(self, **kwargs):
+        super(LearningWindow, self).__init__(**kwargs)
+        self.grid.bind(minimum_height=self.grid.setter('height'))
+        self.filename = ""
+
+    def set_file(self, filename):
+        self.filename = filename
+
+    def browse_sets(self):
+        sm.current = "home"
+
+    def on_enter(self, *args):
+        filename = self.ids.set_name.text
+        flashcards = db_f.retrieve_set(filename)
+        print(flashcards)
+        for term, definition in flashcards:
+            label_term = Label(text=term)
+            label_term.canvas
+            # label_term.size_hint(0.5, 0.25)
+            label_def = Label(text=definition)
+            # label_def.size_hint(0.5, 0.25)
+            self.ids.grid.add_widget(label_term)
+            self.ids.grid.add_widget(label_def)
+
+    def pressed(self, instance):
+        filename = instance.text.split(':')[0]
+        instance.text = 'Opening ' + filename + '.txt'
+
+
+screens = [LoginWindow(name="login"), CreateAccountWindow(name="create"),
+           HomeWindow(name="home"), LearningWindow(name="learning")]
+
 for screen in screens:
     sm.add_widget(screen)
 

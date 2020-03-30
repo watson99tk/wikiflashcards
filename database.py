@@ -69,3 +69,11 @@ class FlashCardDatabase:
         with open('sets/' + filename, 'r') as file:
             line = file.readline().strip()
             return line.split(',')
+
+    def retrieve_set(self, filename):
+        cards_set = []
+        with open('sets/' + filename, 'r') as file:
+            next(file)
+            for line in file:
+                cards_set.append(line.split(','))
+        return cards_set
