@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pymongo
 import classes
 from bson.objectid import ObjectId
@@ -86,27 +88,30 @@ class DBConnection:
         print(flash_card_id)
         self.db["cardssets"].update_one({"_id": ObjectId(set_id)}, {"$addToSet": {"cards": flash_card_id}})
 
-    def add_flashcard_mark(self, card_id, mark):
+    def add_flashcard_mark(self, card_id, user_id, mark):
         if self.db["flashcards"].count_documents({"_id": ObjectId(card_id)}) == 0:
             raise DatabaseException("No such card")
-        self.db["flashcards"].update_one({"_id": ObjectId(card_id)}, {"$addToSet": {"marks": mark}})
+        card = self.db["flashcards"].find_one({"_id": ObjectId(card_id)})
+        already_exists = self.db["ratings"].count_documents({"User": user_id, "Card": card_id})
+        if already_exists == 0:
+            self.db["ratings"].insert_one({"User": user_id, "Card": card_id, "Date": datetime.now(), "Mark": mark})
+        else:
+            self.db["ratings"].update_one({"User": user_id, "Card": card_id}, {"Date": datetime.now(), "Mark": mark})
+        self.update_avarege_mark(card["_id"])
 
-    def get_flashcard_average_mark(self, card_id):
-        if self.db["flashcards"].count_documents({"_id": ObjectId(card_id)}) == 0:
-            raise DatabaseException("No such card")
-        card_marks_exists = self.db["flashcards"].count_documents({"marks": {"$exists": "true"}},
-                                                                  {"_id": ObjectId(card_id)})
-        if card_marks_exists == 0:
-            raise DatabaseException("This card has no marks")
-        card = self.db["flashcards"].find({"_id": ObjectId(card_id)})
-        marks_table = card["marks"]
+    def update_avarege_mark(self, card_id):
+        ratings = self.db["ratings"].find({"Card": card_id})
         marks_sum = 0
         marks_amount = 0
-        for mark in marks_table:
-            marks_sum += mark
+        for rating in ratings:
+            marks_sum += rating["Mark"]
             marks_amount += 1
-        return round(marks_sum / marks_amount,2)
+        self.db["flashcards"].update_one({"_id": card_id}, {"avg_mark": round(marks_sum / marks_amount, 2)})
 
+    def get_flashcard_average_mark(self, card_id):
+        return (self.db["flashcards"].find_one({"_id": card_id}))["avg_mark"]
+
+    #TODO
     def upload_set(self, cards_set):
         if cards_set.ID == 0:
             for flashcard in cards_set.Flashcards:
@@ -119,7 +124,9 @@ class DBConnection:
                 result_sets.append(cards_set)
         return result_sets
 
-
+    #TODO
+    def has_already_rated(self, user_id, card_id):
+        print("todotodotodotodotooooodq")
 
 # db = DBConnection()
 # print("Users list:")

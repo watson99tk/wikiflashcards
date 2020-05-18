@@ -14,6 +14,7 @@ class Flashcard:
         self.Answer = answer
         self.User = creator_id
         self.Set = set_id
+        self.AvgMark =0
 
 
 class Set:
